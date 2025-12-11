@@ -16,8 +16,17 @@ if (process.env.NODE_ENV === "production") {
   app.use("/*", serveStatic({ root: "../client/dist" }));
   app.get("*", serveStatic({ path: "../client/dist/index.html" }));
 } else {
+  const clientPort = process.env.CLIENT_PORT || "5173";
+  const clientUrl = `http://localhost:${clientPort}`;
+
+  // In development, redirect root and any non-auth path to the client dev server
   app.get("/", (c) => {
-    return c.text("hmac OS Server");
+    return c.redirect(clientUrl);
+  });
+  app.get("/*", (c) => {
+    // Preserve the original path/query so SPA routing still works in dev
+    const url = clientUrl + c.req.url;
+    return c.redirect(url);
   });
 }
 

@@ -1,13 +1,47 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useWindowStore } from "@hmac/core";
+import Login from "./components/Login";
 import { Rnd } from "react-rnd";
 import TerminalApp from "@hmac-app/terminal";
 import FinderApp from "@hmac-app/finder";
 
 const App = () => {
+  const [token, setToken] = useState<string | null>(null);
+  useEffect(() => {
+    const check = async () => {
+      const t = localStorage.getItem("hmac_token");
+      if (!t) return setToken(null);
+      const base =
+        (import.meta as any).env.VITE_API_URL || "http://localhost:3000";
+      try {
+        const res = await fetch(`${base}/auth/me`, {
+          headers: { Authorization: `Bearer ${t}` },
+        });
+        if (!res.ok) {
+          localStorage.removeItem("hmac_token");
+          setToken(null);
+          return;
+        }
+        setToken(t);
+      } catch (err) {
+        localStorage.removeItem("hmac_token");
+        setToken(null);
+      }
+    };
+    check();
+  }, []);
   const raptorEnabled = import.meta.env.VITE_ENABLE_RAPTOR_MINI === "true";
   const { windows, windowOrder, focusWindow, setWindowBounds, closeWindow } =
     useWindowStore();
+
+  const handleLogout = () => {
+    localStorage.removeItem("hmac_token");
+    setToken(null);
+  };
+
+  if (!token) {
+    return <Login onLogin={(t) => setToken(t)} />;
+  }
 
   return (
     <div className="w-screen h-screen relative overflow-hidden">
@@ -111,6 +145,12 @@ const App = () => {
           }
         >
           <div className="text-white text-[8px] text-center pt-1">Finder</div>
+        </button>
+        <button
+          className="px-3 py-1 ml-2 bg-red-600 text-white rounded"
+          onClick={() => handleLogout()}
+        >
+          Logout
         </button>
       </div>
     </div>

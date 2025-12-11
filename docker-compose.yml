@@ -35,6 +35,8 @@ services:
       - JWT_SECRET=dev-secret
       - ENABLE_RAPTOR_MINI=true
       - VITE_ENABLE_RAPTOR_MINI=true
+      - VITE_API_URL=http://localhost:3000
+      - CLIENT_PORT=5173
     profiles:
       - dev
 
