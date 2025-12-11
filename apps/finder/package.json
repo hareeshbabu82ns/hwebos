@@ -1,0 +1,9 @@
+{
+  "name": "@hmac-app/finder",
+  "version": "0.0.0",
+  "main": "index.tsx",
+  "dependencies": {
+    "react": "^18.2.0",
+    "@hmac/core": "workspace:*"
+  }
+}

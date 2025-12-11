@@ -1,0 +1,52 @@
+services:
+  hmac:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: production
+    ports:
+      - "3000:3000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongodb:27017/hmac
+      - JWT_SECRET=prod-secret
+      - ENABLE_RAPTOR_MINI=true
+      - VITE_ENABLE_RAPTOR_MINI=true
+    profiles:
+      - prod
+
+  hmac-dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: development
+    ports:
+      - "3000:3000"
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongodb:27017/hmac
+      - JWT_SECRET=dev-secret
+      - ENABLE_RAPTOR_MINI=true
+      - VITE_ENABLE_RAPTOR_MINI=true
+    profiles:
+      - dev
+
+  mongodb:
+    image: mongo:7.0
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
+
+  # MongoDB standalone container for storage and networking
